@@ -1,32 +1,15 @@
-require 'csv'
-
-class MealRepository
-  def initialize(csv_file)
-    @csv_file = csv_file
-    @meals = []
-    @next_id = 1
-    load_csv
+class MealRepository < BaseRepository
+  def model_from_row(row)
+    row[:id] = row[:id].to_i
+    row[:price] = row[:price].to_i
+    Meal.new(row)
   end
 
-  def all
-    @meals
+  def model_header
+    %w( id, name, price )
   end
 
-  def add(meal)
-    meal.id = @next_id
-    @next_id += 1
-    @meals << meal
-  end
-
-  def load_csv # ---------------------
-    csv_options = { headers: :first_row, header_converters: :symbol }
-    CSV.foreach(@csv_file, csv_options) do |row|
-      row[:id] = row[:id].to_i
-      row[:price] = row[:price].to_i
-      @next_id += 1
-      @meals << Meal.new(row)
-    end
-
-    @next_id = @meals.empty? ? 1 : @meals.last.id + 1
+  def csv_row(meal)
+    [ meal.id, meal.name, meal.price ]
   end
 end
